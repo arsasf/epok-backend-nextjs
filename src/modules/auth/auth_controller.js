@@ -2,8 +2,6 @@ const helper = require('../../helpers/wrapper')
 const bcrypt = require('bcrypt')
 const authModel = require('./auth_model')
 const jwt = require('jsonwebtoken')
-const nodemailer = require('nodemailer')
-require('dotenv').config()
 
 module.exports = {
   register: async (req, res) => {
@@ -16,6 +14,7 @@ module.exports = {
       console.log(`Before encrypt = ${userPassword}`)
       console.log(`after encrypt = ${encryptPassword}`)
       const checkEmailUser = await authModel.getDataUser(userEmail)
+      console.log(checkEmailUser)
       if (checkEmailUser.length === 0) {
         const setData = {
           user_name: userName,
@@ -24,42 +23,7 @@ module.exports = {
         }
         const result = await authModel.register(setData)
         delete result.user_password
-        const transporter = nodemailer.createTransport({
-          host: 'smtp.gmail.com',
-          port: 587,
-          secure: false, // true for 465, false for other ports
-          auth: {
-            user: process.env.SMTP_EMAIL,
-            pass: process.env.SMTP_PASSWORD
-          }
-        })
-        const mailOptions = {
-          from: `"E-Pok Team" <${process.env.SMTP_EMAIL}>`,
-          to: userEmail,
-          subject: 'E-Pok Team - Activation Email',
-          html: `<p>
-                      <p>
-                        <b>Hello ${userName}, <br/> Welcome to E-Pok. Click button for get link veification!</b>
-                      </p>
-                      <p>
-                        <a href='http://localhost:3000/verify-register/${result.id}'>Click !</>
-                      </p>
-                    </p>`
-        }
-        await transporter.sendMail(mailOptions, function (error, info) {
-          if (error) {
-            console.log(error)
-            return helper.response(res, 400, 'Email not send !')
-          } else {
-            console.log('Email sent:' + info.response)
-          }
-        })
-        return helper.response(
-          res,
-          200,
-          'Success Register User, Please check your email to activation!',
-          result
-        )
+        return helper.response(res, 200, 'Success Register User', result)
       } else {
         return helper.response(
           res,
@@ -75,14 +39,12 @@ module.exports = {
   login: async (req, res) => {
     try {
       const { userEmail, userPassword } = req.body
-      const checkEmailUser = await authModel.getDataConditions({
-        user_email: userEmail
-      })
-
-      if (checkEmailUser[0].user_status === '1') {
-        if (checkEmailUser.length > 0) {
-          console.log(checkEmailUser[0])
-          // console.log(true, checkEmailUser[0])
+      console.log(userEmail)
+      const checkEmailUser = await authModel.getDataConditions(userEmail)
+      if (checkEmailUser.length > 0) {
+        console.log(checkEmailUser[0].user_pin)
+        if (checkEmailUser[0].user_pin !== 0) {
+          console.log(true, checkEmailUser[0].user_pin)
           const checkPassword = bcrypt.compareSync(
             userPassword,
             checkEmailUser[0].user_password
@@ -97,17 +59,32 @@ module.exports = {
             const result = { ...payload, token }
             return helper.response(res, 200, 'Success login !', result)
           } else {
-            return helper.response(res, 400, 'Wrong Password !')
+            return helper.response(res, 400, 'Wrong Password !', [])
           }
-        } else {
-          return helper.response(res, 404, 'Email/ Account Not registered')
+        } else if (checkEmailUser[0].user_pin === 0) {
+          const checkPassword = bcrypt.compareSync(
+            userPassword,
+            checkEmailUser[0].user_password
+          )
+          if (checkPassword) {
+            const payload = checkEmailUser[0]
+            delete payload.user_password
+            const token = jwt.sign({ ...payload }, 'RAHASIA', {
+              expiresIn: '24h'
+            })
+            const result = { ...payload, token }
+            return helper.response(
+              res,
+              200,
+              'Please Input PIN for secure your account !',
+              result
+            )
+          } else {
+            return helper.response(res, 400, 'Wrong Password !', [])
+          }
         }
       } else {
-        return helper.response(
-          res,
-          400,
-          'Email not verified, please check your email and verification !'
-        )
+        return helper.response(res, 404, 'Email/ Account Not registered', [])
       }
     } catch (error) {
       console.log(error)

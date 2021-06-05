@@ -14,7 +14,7 @@ module.exports = {
   },
 
   updateUser: (setData, id) => {
-    console.log(setData)
+    console.log(id, setData)
     return new Promise((resolve, reject) => {
       connection.query(
         'UPDATE user SET ? WHERE user_id = ?',

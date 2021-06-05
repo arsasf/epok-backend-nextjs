@@ -38,11 +38,16 @@ module.exports = {
   },
 
   getDataConditions: (data) => {
+    console.log(data)
     return new Promise((resolve, reject) => {
-      connection.query('SELECT * FROM user WHERE ?', data, (error, result) => {
-        console.log(error)
-        !error ? resolve(result) : reject(new Error(error))
-      })
+      connection.query(
+        'SELECT * FROM user WHERE user_email = ?',
+        data,
+        (error, result) => {
+          console.log(error)
+          !error ? resolve(result) : reject(new Error(error))
+        }
+      )
     })
   },
 
@@ -69,11 +74,11 @@ module.exports = {
       )
     })
   },
-  updateData: (setData, id) => {
+  updateData: (id, setData) => {
     return new Promise((resolve, reject) => {
       connection.query(
         'UPDATE user SET ? WHERE user_id = ?',
-        [setData, id],
+        [id, setData],
         (error, result) => {
           if (!error) {
             const newResult = {

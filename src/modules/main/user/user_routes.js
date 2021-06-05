@@ -13,11 +13,6 @@ Route.get(
   getUserByIdRedis,
   userController.getUserById
 )
-Route.patch(
-  '/:id',
-  authMiddleware.authentication,
-  clearDataUserRedis,
-  userController.updatePin
-)
+Route.patch('/update-pin/:id', clearDataUserRedis, userController.updatePin)
 
 module.exports = Route
