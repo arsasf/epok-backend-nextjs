@@ -24,27 +24,15 @@ module.exports = {
     }
   },
   isUser: (req, res, next) => {
-    let token = req.headers.authorization
-
-    if (token) {
-      token = token.split(' ')[1]
-      jwt.verify(token, 'RAHASIA', (error, result) => {
-        if (
-          (error && error.name === 'JsonWebTokenError') ||
-          (error && error.name === 'TokenExpiredError')
-        ) {
-          return helper.response(res, 403, error.message)
-        } else {
-          req.decodeToken = result
-          if (req.decodeToken.user_id) {
-            next()
-          } else {
-            return helper.response(res, 403, 'Youre not a user !')
-          }
-        }
-      })
+    if (JSON.stringify(req.decodeToken.user_id) === req.params.id) {
+      console.log(`=====> Welcome User ${req.decodeToken.user_name} ! <=====`)
+      next()
     } else {
-      return helper.response(res, 403, 'Please login first !')
+      return helper.response(
+        res,
+        403,
+        'Sorry, you can not access this account!'
+      )
     }
   }
 }

@@ -7,7 +7,7 @@ const storage = multer.diskStorage({
     cb(null, 'src/uploads')
   },
   filename: function (req, file, cb) {
-    // console.log(file)
+    console.log(file)
     cb(null, new Date().toISOString().replace(/:/g, '-') + file.originalname)
   }
 })
@@ -33,9 +33,9 @@ const upload = multer({
 const uploadFilter = (req, res, next) => {
   upload(req, res, function (err) {
     if (err instanceof multer.MulterError) {
-      return helper.response(res, 403, err.message, null)
+      return helper.response(res, 408, err.message, null)
     } else if (err) {
-      return helper.response(res, 403, err.message, null)
+      return helper.response(res, 408, err.message, null)
     }
     next()
   })

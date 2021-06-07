@@ -42,9 +42,8 @@ module.exports = {
       console.log(userEmail)
       const checkEmailUser = await authModel.getDataConditions(userEmail)
       if (checkEmailUser.length > 0) {
-        console.log(checkEmailUser[0].user_pin)
+        /* PIN was Filled */
         if (checkEmailUser[0].user_pin !== 0) {
-          console.log(true, checkEmailUser[0].user_pin)
           const checkPassword = bcrypt.compareSync(
             userPassword,
             checkEmailUser[0].user_password
@@ -61,6 +60,7 @@ module.exports = {
           } else {
             return helper.response(res, 400, 'Wrong Password !', [])
           }
+          // PIN NOT FILL
         } else if (checkEmailUser[0].user_pin === 0) {
           const checkPassword = bcrypt.compareSync(
             userPassword,
@@ -88,79 +88,6 @@ module.exports = {
       }
     } catch (error) {
       console.log(error)
-      return helper.response(res, 408, 'Bad Request', error)
-    }
-  },
-  verify: async (req, res) => {
-    try {
-      const { id } = req.params
-      if (id.length > 0) {
-        const result = await authModel.verifyRegister(id)
-        return helper.response(res, 200, 'Success Verifikasi !', result)
-      } else {
-        return helper.response(res, 404, 'Data Not Found')
-      }
-    } catch (error) {
-      return helper.response(res, 408, 'Bad Request', error)
-    }
-  },
-
-  updatePasswordUser: async (req, res) => {
-    try {
-      const { id } = req.params
-      const { userNewPassword, userConfirmPassword } = req.body
-      switch (userNewPassword) {
-        case undefined:
-          return helper.response(
-            res,
-            404,
-            'Update Failed, Please Input New Password'
-          )
-        case '':
-          return helper.response(
-            res,
-            404,
-            'Update Failed, Please Input New Password'
-          )
-        default:
-          break
-      }
-      switch (userConfirmPassword) {
-        case undefined:
-          return helper.response(
-            res,
-            404,
-            'Update Failed, Please Input Confirm Password'
-          )
-        case '':
-          return helper.response(
-            res,
-            404,
-            'Update Failed, Please Input Confirm Password'
-          )
-        default:
-          break
-      }
-      const salt = bcrypt.genSaltSync(10)
-      const encryptPassword = bcrypt.hashSync(userNewPassword, salt)
-      console.log(`Before encrypt = ${userNewPassword}`)
-      console.log(`after encrypt = ${encryptPassword}`)
-      if (userNewPassword !== userConfirmPassword) {
-        return helper.response(
-          res,
-          403,
-          'New Password and Confirm Password are different, please check again!'
-        )
-      } else {
-        const setData = {
-          user_password: encryptPassword
-        }
-        const result = await authModel.updateData(setData, id)
-        delete result.user_password
-        console.log('Sucess Update New Password !')
-        return helper.response(res, 200, 'Success Update New Password', result)
-      }
-    } catch (error) {
       return helper.response(res, 408, 'Bad Request', error)
     }
   }
