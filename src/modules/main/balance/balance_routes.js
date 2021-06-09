@@ -6,7 +6,7 @@ const authMiddleware = require('../../../middleware/auth')
 Route.get(
   '/:id',
   authMiddleware.authentication,
-  authMiddleware.isUser,
+  // authMiddleware.isUser,
   balanceController.getBalanceById
 )
 Route.post(
