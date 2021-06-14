@@ -58,9 +58,8 @@ module.exports = {
       const { userPin } = req.body
       const checkUser = await userModel.getUserById(id)
       if (checkUser.length > 0) {
-        if (checkUser[0].user_pin === 0 || checkUser[0].user_status === '0') {
+        if (checkUser[0].user_pin === 0) {
           const setData = {
-            user_status: '1',
             user_pin: userPin
           }
           const result = await userModel.updateUser(setData, id)
@@ -105,7 +104,6 @@ module.exports = {
           )
         } else if (checkUser[0].user_pin !== 0) {
           const setData = {
-            user_status: '1',
             user_pin: userPin
           }
           const result = await userModel.updateUser(setData, id)
@@ -251,10 +249,15 @@ module.exports = {
     try {
       const { id } = req.params
       const checkUser = await userModel.getUserById(id)
+      console.log(checkUser[0].user_image)
       if (checkUser.length > 0) {
         const image = req.file ? req.file.filename : ''
         console.log(image)
-        if (image !== checkUser[0].image && image !== '') {
+        if (
+          image !== checkUser[0].user_image &&
+          image !== '' &&
+          checkUser[0].user_image !== ''
+        ) {
           console.log(true)
           const pathFile = 'src/uploads/' + checkUser[0].user_image
           console.log(pathFile)
@@ -278,7 +281,7 @@ module.exports = {
           return helper.response(res, 200, 'Succes update image!', result)
         } else if (checkUser[0].user_image === '') {
           const setData = {
-            user_image: '',
+            user_image: image,
             user_updated_at: new Date(Date.now())
           }
           const result = await userModel.updateUser(setData, id)
