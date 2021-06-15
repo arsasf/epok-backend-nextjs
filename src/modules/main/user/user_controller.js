@@ -298,5 +298,52 @@ module.exports = {
       console.log(error)
       return helper.response(res, 408, 'Bad Request', error)
     }
+  },
+  deleteImageUser: async (req, res) => {
+    try {
+      const { id } = req.params
+      const checkUser = await userModel.getUserById(id)
+      console.log(checkUser[0].user_image)
+      if (checkUser.length > 0) {
+        if (checkUser[0].user_image !== '') {
+          console.log(true)
+          const pathFile = 'src/uploads/' + checkUser[0].user_image
+          console.log(pathFile)
+          if (fs.existsSync(pathFile)) {
+            console.log(true, 'image ada', pathFile)
+            fs.unlink(pathFile, function (err) {
+              if (err) throw err
+              console.log(
+                'Oldest Image Success Deleted',
+                checkUser[0].user_image
+              )
+            })
+          }
+          const setData = {
+            user_image: '',
+            user_updated_at: new Date(Date.now())
+          }
+          const result = await userModel.updateUser(setData, id)
+          console.log('success delete image profile', result)
+          return helper.response(res, 200, 'Succes delete image!', result)
+        } else if (checkUser[0].user_image === '') {
+          const setData = {
+            user_image: '',
+            user_updated_at: new Date(Date.now())
+          }
+          const result = await userModel.updateUser(setData, id)
+          console.log('success delete image profile', result)
+          return helper.response(res, 200, 'Succes delete image!', result)
+        } else {
+          console.log(false, 'data same, cannot delete')
+          return helper.response(res, 400, 'data same, cannot delete !')
+        }
+      } else {
+        return helper.response(res, 404, 'User not found !', [])
+      }
+    } catch (error) {
+      console.log(error)
+      return helper.response(res, 408, 'Bad Request', error)
+    }
   }
 }

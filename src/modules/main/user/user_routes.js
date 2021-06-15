@@ -40,5 +40,11 @@ Route.patch(
   clearDataUserRedis,
   userController.updateImageUser
 )
-
+Route.patch(
+  '/delete/profile/user/image-profile/:id',
+  authMiddleware.authentication,
+  uploadFile,
+  clearDataUserRedis,
+  userController.deleteImageUser
+)
 module.exports = Route
