@@ -6,13 +6,11 @@ const authMiddleware = require('../../../middleware/auth')
 Route.post(
   '/transfer/:id',
   authMiddleware.authentication,
-  authMiddleware.isUser,
   transactionController.createTransferById
 )
 Route.get(
   '/all/:id',
   authMiddleware.authentication,
-  authMiddleware.isUser,
   transactionController.getAllTransferByIdFilter
 )
 

@@ -75,35 +75,12 @@ module.exports = {
               transaction_type: transactionType,
               transaction_status: '1'
             }
-            const setDataTransactionReceiver = {
-              transaction_sender_id: transactionReceiverId,
-              transaction_receiver_id: id,
-              transaction_debit: 0,
-              transaction_kredit: transactionAmount,
-              transaction_saldo:
-                balanceReceiverId[0].balance - transactionAmount,
-              transaction_note: transactionNote,
-              transaction_type: transactionType,
-              transaction_status: '1'
-            }
             const setDataBalanceSender = {
               user_id: id,
               balance: setDataTransactionSender.transaction_saldo,
               balance_updated_at: new Date(Date.now())
             }
-            const setDataBalanceReceiver = {
-              user_id: transactionReceiverId,
-              balance: setDataTransactionReceiver.transaction_saldo,
-              balance_updated_at: new Date(Date.now())
-            }
             await balanceModel.updateBalanceById(setDataBalanceSender, id)
-            await balanceModel.updateBalanceById(
-              setDataBalanceReceiver,
-              transactionReceiverId
-            )
-            await transactionModel.addTransactionById(
-              setDataTransactionReceiver
-            )
             const result = await transactionModel.addTransactionById(
               setDataTransactionSender
             )
@@ -132,10 +109,10 @@ module.exports = {
   getAllTransferByIdFilter: async (req, res) => {
     try {
       const { id } = req.params
-      let { filter, limit } = req.body
-      console.log(req.body)
-      filter = filter.toLowerCase()
+      console.log(id)
+      let { filter, limit } = req.params
       filter = filter || 'month(now())'
+      filter = filter.toLowerCase()
       limit = limit || 5
       limit = parseInt(limit)
       const totalData = await transactionModel.getDataCount(id, { filter })
