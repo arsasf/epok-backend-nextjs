@@ -16,8 +16,8 @@ E-Pok ? Easy transactions anywhere and can be used anytime !
 
 ## Built With
 
-[![Node Js]()]
-[![Express Js]]
+[Node Js]()
+[Express Js]()
 
 ## Requirements
 
