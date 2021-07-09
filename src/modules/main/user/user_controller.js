@@ -8,6 +8,15 @@ const bcrypt = require('bcrypt')
 const fs = require('fs')
 
 module.exports = {
+  getUserAll: async (req, res) => {
+    try {
+      const result = await userModel.getDataUserAll()
+      return helper.response(res, 200, 'Succes get data !', result)
+    } catch (error) {
+      console.log(error)
+      return helper.response(res, 400, 'Bad Request', error)
+    }
+  },
   getUserById: async (req, res) => {
     try {
       const { id } = req.params

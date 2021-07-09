@@ -116,6 +116,10 @@ module.exports = {
             })
 
             const result = { ...payload, token }
+            const setData = {
+              user_login: '1'
+            }
+            await authModel.updateUser(setData, result.user_id)
             return helper.response(res, 200, 'Success login !', result)
           } else {
             return helper.response(res, 400, 'Wrong Password !', [])
@@ -145,6 +149,25 @@ module.exports = {
         }
       } else {
         return helper.response(res, 404, 'Email/ Account Not registered', [])
+      }
+    } catch (error) {
+      console.log(error)
+      return helper.response(res, 408, 'Bad Request', error)
+    }
+  },
+
+  logout: async (req, res) => {
+    try {
+      const { id } = req.params
+      const setData = {
+        user_login: '0'
+      }
+      const checkUserByid = await authModel.getDataUserById(id)
+      if (checkUserByid.length > 0) {
+        const result = await authModel.updateUser(setData, id)
+        return helper.response(res, 200, 'Success Logout ', result)
+      } else {
+        return helper.response(res, 404, 'Logout Failed', [])
       }
     } catch (error) {
       console.log(error)

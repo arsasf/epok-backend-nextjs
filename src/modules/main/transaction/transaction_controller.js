@@ -81,11 +81,18 @@ module.exports = {
               balance_updated_at: new Date(Date.now())
             }
             await balanceModel.updateBalanceById(setDataBalanceSender, id)
-            const result = await transactionModel.addTransactionById(
+            const topup = await transactionModel.addTransactionById(
               setDataTransactionSender
             )
-            console.log(result)
-            return helper.response(res, 200, 'Transfer is success!', result)
+            console.log(topup)
+            const dataPayment = {
+              orderId: topup.id,
+              orderAmount: topup.transaction_debit
+            }
+            const result = await transactionModel.postOrderMidtrans(dataPayment)
+            return helper.response(res, 200, 'Please clik Continue', {
+              redirectUrl: result
+            })
           }
         } else {
           return helper.response(
@@ -136,6 +143,80 @@ module.exports = {
         'Get data transfer by Id Filter',
         result,
         pageInfo
+      )
+    } catch (error) {
+      console.log(error)
+      return helper.response(res, 408, 'Bad Request', error)
+    }
+  },
+  getAllTransferDebit: async (req, res) => {
+    try {
+      const id = req.decodeToken.user_id
+      const days = [0, 1, 2, 3, 4, 5, 6]
+
+      const totalPerDay = []
+      for (const day of days) {
+        const result = await transactionModel.getAllTransferDebit(day, id)
+        totalPerDay.push(result)
+      }
+      return helper.response(
+        res,
+        200,
+        'Success get data transfer debit by week',
+        totalPerDay
+      )
+    } catch (error) {
+      console.log(error)
+      return helper.response(res, 408, 'Bad Request', error)
+    }
+  },
+  getAllTransferKredit: async (req, res) => {
+    try {
+      const id = req.decodeToken.user_id
+      const days = [0, 1, 2, 3, 4, 5, 6]
+
+      const totalPerDay = []
+      for (const day of days) {
+        const result = await transactionModel.getAllTransferKredit(day, id)
+        totalPerDay.push(result)
+      }
+      return helper.response(
+        res,
+        200,
+        'Success get data transfer kredit by week',
+        totalPerDay
+      )
+    } catch (error) {
+      console.log(error)
+      return helper.response(res, 408, 'Bad Request', error)
+    }
+  },
+  getSumAllTransferDebit: async (req, res) => {
+    try {
+      const id = req.decodeToken.user_id
+
+      const result = await transactionModel.getAllTransferDebitByWeek(id)
+      return helper.response(
+        res,
+        200,
+        'Success get data Sum transfer Debit by week',
+        result
+      )
+    } catch (error) {
+      console.log(error)
+      return helper.response(res, 408, 'Bad Request', error)
+    }
+  },
+  getSumAllTransferKredit: async (req, res) => {
+    try {
+      const id = req.decodeToken.user_id
+
+      const result = await transactionModel.getAllTransferKreditByWeek(id)
+      return helper.response(
+        res,
+        200,
+        'Success get data Sum transfer Kredit by week',
+        result
       )
     } catch (error) {
       console.log(error)

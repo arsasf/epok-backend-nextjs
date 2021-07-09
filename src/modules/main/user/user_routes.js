@@ -10,13 +10,19 @@ const uploadFile = require('../../../middleware/uploads')
 
 Route.get(
   '/',
-  authMiddleware.authentication,
-  getUserByIdRedis,
+  // authMiddleware.authentication,
+  // getUserByIdRedis,
   userController.getAllUser
 )
 Route.get(
+  '/all-user',
+  // authMiddleware.authentication,
+  // getUserByIdRedis,
+  userController.getUserAll
+)
+Route.get(
   '/:id',
-  authMiddleware.authentication,
+  // authMiddleware.authentication,
   getUserByIdRedis,
   userController.getUserById
 )

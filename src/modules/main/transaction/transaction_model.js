@@ -1,4 +1,5 @@
 const connection = require('../../../config/mysql')
+const midtransClient = require('midtrans-client')
 
 module.exports = {
   addTransactionById: (setData) => {
@@ -45,6 +46,77 @@ module.exports = {
           !error ? resolve(result) : reject(new Error(error))
         }
       )
+    })
+  },
+  getAllTransferDebit: (day, id) => {
+    return new Promise((resolve, reject) => {
+      connection.query(
+        `SELECT SUM(transaction_debit) AS total, WEEKDAY(transaction_created_at) AS day FROM transaction WHERE WEEK(transaction_created_at) = WEEK(now()) AND WEEKDAY(transaction_created_at) = ${day} AND (transaction_sender_id = ${id} OR transaction_receiver_id = ${id}) `,
+        (error, result) => {
+          !error ? resolve(result) : reject(new Error(error))
+        }
+      )
+    })
+  },
+  getAllTransferKredit: (day, id) => {
+    return new Promise((resolve, reject) => {
+      connection.query(
+        `SELECT SUM(transaction_kredit) AS total, WEEKDAY(transaction_created_at) AS day FROM transaction WHERE WEEK(transaction_created_at) = WEEK(now()) AND WEEKDAY(transaction_created_at) = ${day} AND transaction_sender_id = ${id}  `,
+        (error, result) => {
+          !error ? resolve(result) : reject(new Error(error))
+        }
+      )
+    })
+  },
+  getAllTransferDebitByWeek: (id) => {
+    return new Promise((resolve, reject) => {
+      connection.query(
+        `SELECT SUM (transaction_debit) AS total FROM transaction WHERE WEEK(transaction_created_at) = WEEK(now()) AND (transaction_sender_id = ${id} OR transaction_receiver_id = ${id})`,
+        (error, result) => {
+          !error ? resolve(result) : reject(new Error(error))
+        }
+      )
+    })
+  },
+  getAllTransferKreditByWeek: (id) => {
+    return new Promise((resolve, reject) => {
+      connection.query(
+        `SELECT SUM (transaction_kredit) AS total FROM transaction WHERE WEEK(transaction_created_at) = WEEK(now()) AND (transaction_sender_id = ${id} OR transaction_receiver_id = ${id})`,
+        (error, result) => {
+          !error ? resolve(result) : reject(new Error(error))
+        }
+      )
+    })
+  },
+  postOrderMidtrans: ({ orderId, orderAmount }) => {
+    return new Promise((resolve, reject) => {
+      const snap = new midtransClient.Snap({
+        isProduction: false,
+        serverKey: 'SB-Mid-server-cQ2SdW4dl4T4ETGWBbXzM6BS',
+        clientKey: 'SB-Mid-client-Br8qu0hv-PGs4oyU'
+      })
+      const parameter = {
+        transaction_details: {
+          order_id: orderId,
+          gross_amount: orderAmount
+        },
+        credit_card: {
+          secure: true
+        }
+      }
+      snap
+        .createTransaction(parameter)
+        .then((transaction) => {
+          // transaction token
+          const transactionToken = transaction.token
+          console.log('transaction:', transaction)
+          console.log('transactionToken:', transactionToken)
+          resolve(transaction.redirect_url)
+        })
+        .catch((error) => {
+          console.log(error)
+          reject(error)
+        })
     })
   }
 }

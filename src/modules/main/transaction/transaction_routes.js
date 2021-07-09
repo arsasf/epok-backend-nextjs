@@ -13,5 +13,28 @@ Route.get(
   authMiddleware.authentication,
   transactionController.getAllTransferByIdFilter
 )
+Route.get(
+  '/all/transaction/transaction-debit',
+  authMiddleware.authentication,
+  transactionController.getAllTransferDebit
+)
+
+Route.get(
+  '/all/transaction/transaction-kredit',
+  authMiddleware.authentication,
+  transactionController.getAllTransferKredit
+)
+
+Route.get(
+  '/all/transaction/sum-debit',
+  authMiddleware.authentication,
+  transactionController.getSumAllTransferDebit
+)
+
+Route.get(
+  '/all/transaction/sum-kredit',
+  authMiddleware.authentication,
+  transactionController.getSumAllTransferKredit
+)
 
 module.exports = Route

@@ -5,7 +5,7 @@ const authMiddleware = require('../../../middleware/auth')
 
 Route.get(
   '/:id',
-  authMiddleware.authentication,
+  // authMiddleware.authentication,
   // authMiddleware.isUser,
   balanceController.getBalanceById
 )

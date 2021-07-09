@@ -25,6 +25,13 @@ module.exports = {
       )
     })
   },
+  getDataUserAll: () => {
+    return new Promise((resolve, reject) => {
+      connection.query('SELECT * FROM user ', (error, result) => {
+        !error ? resolve(result) : reject(new Error(error))
+      })
+    })
+  },
   getUserById: (id) => {
     return new Promise((resolve, reject) => {
       connection.query(
