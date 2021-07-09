@@ -23,7 +23,7 @@ E-Pok ? Easy transactions anywhere and can be used anytime !
 
 1. <a href="https://expressjs.org/docs/getting-started">Express Js</a>
 2. Node_modules `npm install` or `yarn install`
-3. Backend API Coffee-Mate [`here`](https://github.com/arsasf/epok-backend-nextjs.git)
+3. Frontend E-Pok [`here`](https://github.com/arsasf/epok-frontend-nextjs.git)
 
 ## Getting Started
 
