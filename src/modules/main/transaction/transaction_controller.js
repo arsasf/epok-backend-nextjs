@@ -31,8 +31,8 @@ module.exports = {
               transaction_status: '1'
             }
             const setDataTransactionReceiver = {
-              transaction_sender_id: transactionReceiverId,
-              transaction_receiver_id: id,
+              transaction_sender_id: id,
+              transaction_receiver_id: transactionReceiverId,
               transaction_debit: transactionAmount,
               transaction_kredit: 0,
               transaction_saldo:
@@ -66,8 +66,8 @@ module.exports = {
             return helper.response(res, 200, 'Transfer is success!', result)
           } else {
             const setDataTransactionSender = {
-              transaction_sender_id: id,
-              transaction_receiver_id: transactionReceiverId,
+              transaction_sender_id: transactionReceiverId,
+              transaction_receiver_id: id,
               transaction_debit: transactionAmount,
               transaction_kredit: 0,
               transaction_saldo: balanceSenderId[0].balance + transactionAmount,
@@ -116,34 +116,9 @@ module.exports = {
   getAllTransferByIdFilter: async (req, res) => {
     try {
       const { id } = req.params
-      console.log(id)
-      let { filter, limit } = req.params
-      filter = filter || 'month(now())'
-      filter = filter.toLowerCase()
-      limit = limit || 5
-      limit = parseInt(limit)
-      const totalData = await transactionModel.getDataCount(id, { filter })
-      const totalpage = Math.ceil(totalData / limit)
-      const pageInfo = {
-        totalpage,
-        limit,
-        totalData
-      }
-      const result = await transactionModel.getAllTransferByIdFilter(
-        id,
-        {
-          filter
-        },
-        limit
-      )
+      const result = await transactionModel.getAllTransferByIdFilter(id)
       console.log(result)
-      return helper.response(
-        res,
-        200,
-        'Get data transfer by Id Filter',
-        result,
-        pageInfo
-      )
+      return helper.response(res, 200, 'Get data transfer by Id Filter', result)
     } catch (error) {
       console.log(error)
       return helper.response(res, 408, 'Bad Request', error)
@@ -212,6 +187,20 @@ module.exports = {
       const id = req.decodeToken.user_id
 
       const result = await transactionModel.getAllTransferKreditByWeek(id)
+      return helper.response(
+        res,
+        200,
+        'Success get data Sum transfer Kredit by week',
+        result
+      )
+    } catch (error) {
+      console.log(error)
+      return helper.response(res, 408, 'Bad Request', error)
+    }
+  },
+  getAllTransaction: async (req, res) => {
+    try {
+      const result = await transactionModel.getDataAllTransaction()
       return helper.response(
         res,
         200,

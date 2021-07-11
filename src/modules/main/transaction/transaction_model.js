@@ -23,6 +23,14 @@ module.exports = {
       )
     })
   },
+  getDataAllTransaction: () => {
+    return new Promise((resolve, reject) => {
+      connection.query('SELECT * FROM transaction', (error, result) => {
+        !error ? resolve(result) : reject(new Error(error))
+        // console.log(error)
+      })
+    })
+  },
   getDataCount: (id, { filter }) => {
     console.log(id, { filter })
     return new Promise((resolve, reject) => {
@@ -36,12 +44,10 @@ module.exports = {
       )
     })
   },
-  getAllTransferByIdFilter: (id, { filter }, limit) => {
-    console.log(id, filter)
+  getAllTransferByIdFilter: (id) => {
     return new Promise((resolve, reject) => {
       connection.query(
-        `SELECT * FROM transaction JOIN user ON user.user_id = transaction.transaction_receiver_id WHERE transaction.transaction_sender_id = ? AND ${filter} LIMIT ? `,
-        [id, limit],
+        `SELECT * FROM transaction JOIN user ON user.user_id = transaction.transaction_receiver_id WHERE transaction.transaction_sender_id = ${id} OR transaction.transaction_receiver_id = ${id} ORDER BY transaction.transaction_id DESC`,
         (error, result) => {
           !error ? resolve(result) : reject(new Error(error))
         }
@@ -51,8 +57,9 @@ module.exports = {
   getAllTransferDebit: (day, id) => {
     return new Promise((resolve, reject) => {
       connection.query(
-        `SELECT SUM(transaction_debit) AS total, WEEKDAY(transaction_created_at) AS day FROM transaction WHERE WEEK(transaction_created_at) = WEEK(now()) AND WEEKDAY(transaction_created_at) = ${day} AND (transaction_sender_id = ${id} OR transaction_receiver_id = ${id}) `,
+        `SELECT SUM(transaction_debit) AS total, WEEKDAY(transaction_created_at) AS day FROM transaction WHERE WEEK(transaction_created_at) = WEEK(now()) AND WEEKDAY(transaction_created_at) = ${day} AND transaction_receiver_id = ${id}`,
         (error, result) => {
+          console.log(result)
           !error ? resolve(result) : reject(new Error(error))
         }
       )
@@ -63,6 +70,7 @@ module.exports = {
       connection.query(
         `SELECT SUM(transaction_kredit) AS total, WEEKDAY(transaction_created_at) AS day FROM transaction WHERE WEEK(transaction_created_at) = WEEK(now()) AND WEEKDAY(transaction_created_at) = ${day} AND transaction_sender_id = ${id}  `,
         (error, result) => {
+          console.log(result)
           !error ? resolve(result) : reject(new Error(error))
         }
       )
@@ -71,7 +79,7 @@ module.exports = {
   getAllTransferDebitByWeek: (id) => {
     return new Promise((resolve, reject) => {
       connection.query(
-        `SELECT SUM (transaction_debit) AS total FROM transaction WHERE WEEK(transaction_created_at) = WEEK(now()) AND (transaction_sender_id = ${id} OR transaction_receiver_id = ${id})`,
+        `SELECT SUM(transaction_debit) AS total FROM transaction WHERE WEEK(transaction_created_at) = WEEK(now()) AND  transaction_receiver_id = ${id}`,
         (error, result) => {
           !error ? resolve(result) : reject(new Error(error))
         }
@@ -81,7 +89,7 @@ module.exports = {
   getAllTransferKreditByWeek: (id) => {
     return new Promise((resolve, reject) => {
       connection.query(
-        `SELECT SUM (transaction_kredit) AS total FROM transaction WHERE WEEK(transaction_created_at) = WEEK(now()) AND (transaction_sender_id = ${id} OR transaction_receiver_id = ${id})`,
+        `SELECT SUM(transaction_kredit) AS total FROM transaction WHERE WEEK(transaction_created_at) = WEEK(now()) AND transaction_sender_id = ${id} `,
         (error, result) => {
           !error ? resolve(result) : reject(new Error(error))
         }

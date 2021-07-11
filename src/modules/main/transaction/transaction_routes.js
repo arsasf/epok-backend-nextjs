@@ -9,6 +9,11 @@ Route.post(
   transactionController.createTransferById
 )
 Route.get(
+  '/',
+  authMiddleware.authentication,
+  transactionController.getAllTransaction
+)
+Route.get(
   '/all/:id',
   authMiddleware.authentication,
   transactionController.getAllTransferByIdFilter

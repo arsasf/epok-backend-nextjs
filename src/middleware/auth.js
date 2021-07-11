@@ -5,7 +5,6 @@ module.exports = {
   authentication: (req, res, next) => {
     // console.log('PROSES AUTHENTICATON MIDDLEWARE RUNNING')
     let token = req.headers.authorization
-    console.log(token)
     if (token) {
       token = token.split(' ')[1]
       jwt.verify(token, 'RAHASIA', (error, result) => {
